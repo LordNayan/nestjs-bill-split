@@ -60,7 +60,7 @@ export class SplitController {
     type: CreateExpenseDto,
   })
   @ApiOkResponse({
-    status: 200,
+    status: 201,
     description: `success`,
   })
   @ApiBadRequestResponse({
@@ -73,7 +73,7 @@ export class SplitController {
     @Res({ passthrough: true }) response: Response
   ) {
     const result = await this.splitService.addExpense(payload);
-    response.status(HttpStatus.OK);
+    response.status(HttpStatus.CREATED);
     return result;
   }
 

@@ -1,6 +1,5 @@
 import { SplitService } from "@split/split.service";
 import { User } from "@split/models/user.entity";
-import { ExpenseType } from "@split/enums/expense-type.enum";
 import { EqualSplit } from "@split/models/split/equal-split.entity";
 import { UnequalSplit } from "@split/models/split/unequal-split.entity";
 import { BadRequestException } from "@nestjs/common";
@@ -11,10 +10,10 @@ import {
   CreateExpenseDto,
   CreateExpenseResponseDto,
 } from "../dto/create-expense.dto";
+import { CreateExpenseEqualMock, CreateExpenseUnequalMock, TEST_USER_EMAIL_1, TEST_USER_EMAIL_2, TEST_USER_EMAIL_3, TEST_USER_NAME_1, TEST_USER_NAME_2, TEST_USER_NAME_3 } from "./mockData/split.mockData";
 
 describe("SplitService", () => {
   let splitService: SplitService;
-  let expenseHelper: ExpenseHelper;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -22,15 +21,12 @@ describe("SplitService", () => {
     }).compile();
 
     splitService = moduleRef.get<SplitService>(SplitService);
-    expenseHelper = moduleRef.get<ExpenseHelper>(ExpenseHelper);
   });
 
   describe("addUser", () => {
     it("should add a new user and return a success response", () => {
       // Create a new user
-      const user = new User("", "");
-      user.setEmail("test@example.com");
-      user.setName("Test User");
+      const user = new User("Test User", "test@example.com");
 
       // Add the user using addUser() method
       const response = splitService.addUser(user);
@@ -43,17 +39,13 @@ describe("SplitService", () => {
 
     it("should throw BadRequestException when trying to add an existing user", () => {
       // Create an existing user
-      const existingUser = new User("", "");
-      existingUser.setEmail("test@example.com");
-      existingUser.setName("Existing User");
+      const existingUser = new User("Existing User", "test@example.com");
 
       // Add the existing user first
       splitService.addUser(existingUser);
 
       // Create a new user with the same email
-      const newUser = new User("", "");
-      newUser.setEmail("test@example.com");
-      newUser.setName("New User");
+      const newUser = new User("New User", "test@example.com");
 
       // Verify that adding the new user throws BadRequestException
       expect(() => splitService.addUser(newUser)).toThrowError(
@@ -65,19 +57,14 @@ describe("SplitService", () => {
   describe("addExpense", () => {
     it("should add an equal expense and update the balance sheet", () => {
       // Prepare test data
-      const expensePayload: CreateExpenseDto = {
-        expenseType: ExpenseType.EQUAL,
-        amount: 100,
-        name: "Equal Expense",
-        paidBy: "user1@example.com",
-      };
+      const expensePayload: CreateExpenseDto = CreateExpenseEqualMock;
 
       // Mock the necessary methods and entities
       const userMap = new Map<string, User>();
-      const user1 = new User("User 1", "user1@example.com");
-      const user2 = new User("User 2", "user2@example.com");
-      userMap.set("user1@example.com", user1);
-      userMap.set("user2@example.com", user2);
+      const user1 = new User(TEST_USER_NAME_1, TEST_USER_EMAIL_1);
+      const user2 = new User(TEST_USER_NAME_2, TEST_USER_EMAIL_2);
+      userMap.set(TEST_USER_EMAIL_1, user1);
+      userMap.set(TEST_USER_EMAIL_2, user2);
       splitService["userMap"] = userMap;
 
       const expense = ExpenseHelper.createExpense(
@@ -101,8 +88,8 @@ describe("SplitService", () => {
       // Verify the balance sheet
       const balanceSheet = splitService["balanceSheet"];
       expect(balanceSheet.size).toBe(2);
-      expect(balanceSheet.get("user1@example.com")).toBeDefined();
-      expect(balanceSheet.get("user2@example.com")).toBeDefined();
+      expect(balanceSheet.get(TEST_USER_EMAIL_1)).toBeDefined();
+      expect(balanceSheet.get(TEST_USER_EMAIL_2)).toBeDefined();
 
       // Verify the total group spendings
       expect(splitService["totalGroupSpendings"]).toBe(100);
@@ -110,26 +97,16 @@ describe("SplitService", () => {
 
     it("should add an unequal expense and update the balance sheet", () => {
       // Prepare test data
-      const expensePayload: CreateExpenseDto = {
-        expenseType: ExpenseType.UNEQUAL,
-        amount: 200,
-        name: "Unequal Expense",
-        paidBy: "user1@example.com",
-        numberOfUsers: 2,
-        splitInfo: [
-          { email: "user2@example.com", amount: 50 },
-          { email: "user3@example.com", amount: 150 },
-        ],
-      };
+      const expensePayload: CreateExpenseDto = CreateExpenseUnequalMock;
 
       // Mock the necessary methods and entities
       const userMap = new Map<string, User>();
-      const user1 = new User("User 1", "user1@example.com");
-      const user2 = new User("User 2", "user2@example.com");
-      const user3 = new User("User 3", "user3@example.com");
-      userMap.set("user1@example.com", user1);
-      userMap.set("user2@example.com", user2);
-      userMap.set("user3@example.com", user3);
+      const user1 = new User(TEST_USER_NAME_1, TEST_USER_EMAIL_1);
+      const user2 = new User(TEST_USER_NAME_2, TEST_USER_EMAIL_2);
+      const user3 = new User(TEST_USER_NAME_3, TEST_USER_EMAIL_3);
+      userMap.set(TEST_USER_EMAIL_1, user1);
+      userMap.set(TEST_USER_EMAIL_2, user2);
+      userMap.set(TEST_USER_EMAIL_3, user3);
       splitService["userMap"] = userMap;
 
       const expense = ExpenseHelper.createExpense(
@@ -153,13 +130,13 @@ describe("SplitService", () => {
       // Verify the balance sheet
       const balanceSheet = splitService["balanceSheet"];
       expect(balanceSheet.size).toBe(3);
-      expect(balanceSheet.get("user1@example.com")).toBeDefined();
-      expect(balanceSheet.get("user1@example.com")?.size).toBe(2);
+      expect(balanceSheet.get(TEST_USER_EMAIL_1)).toBeDefined();
+      expect(balanceSheet.get(TEST_USER_EMAIL_1)?.size).toBe(2);
       expect(
-        balanceSheet.get("user1@example.com")?.get("user2@example.com")
+        balanceSheet.get(TEST_USER_EMAIL_1)?.get(TEST_USER_EMAIL_2)
       ).toBe(50);
       expect(
-        balanceSheet.get("user1@example.com")?.get("user3@example.com")
+        balanceSheet.get(TEST_USER_EMAIL_1)?.get(TEST_USER_EMAIL_3)
       ).toBe(150);
 
       // Verify the total group spendings
@@ -168,16 +145,8 @@ describe("SplitService", () => {
 
     it("should throw an error for an invalid expense payload", () => {
       // Prepare test data
-      const expensePayload: CreateExpenseDto = {
-        expenseType: ExpenseType.UNEQUAL,
-        amount: 100,
-        name: "Invalid Expense",
-        paidBy: "user1@example.com",
-        splitInfo: [
-          { email: "user2@example.com", amount: 50 },
-          { email: "user3@example.com", amount: 75 },
-        ],
-      };
+      delete(CreateExpenseUnequalMock.numberOfUsers)
+      const expensePayload: CreateExpenseDto = CreateExpenseUnequalMock;
 
       // Execute the method and verify the error
       expect(() => splitService.addExpense(expensePayload)).toThrowError(

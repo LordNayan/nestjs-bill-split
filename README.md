@@ -58,17 +58,17 @@ localhost:3000/docs
 
 - For simplicity sake, this app dosent have a concept of group. All added users are part of the same global group. The group functionality can be easily added as the design supports it.
 
-- Since everything is managed by in-memory objects, it wont persist if server is stopped/restarted.
+- Since everything is managed by in-memory objects, data wont persist if server is stopped/restarted.
 
 - App supports expenses up to two decimal places. Any more than that will be rounded off.
 
-- Email ids should be distinct while adding users. However, duplicate usernames are allowed.
+- Email ids should be distinct when adding users. However, duplicate usernames are allowed.
 
 - There are two kind of splits that the app supports while adding expenses, 
    
     ### EQUAL
 
-    When expense type is EQUAL, it will divide the amount equally between all the users of the group. 
+    When expense type is EQUAL, it will divide the amount equally between all the users present in the system. 
 
         Expense - **/api/expense** [POST]
         {
@@ -96,11 +96,11 @@ localhost:3000/docs
         "splitInfo": [
             {
             "email": "nayan@gmail.com",
-            "amount": 1200
+            "amount": 1000
             },
             {
             "email": "dishan@gmail.com",
-            "amount": 1200
+            "amount": 1400
             },
             {
             "email": "avi@gmail.com",

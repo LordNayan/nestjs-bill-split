@@ -60,9 +60,14 @@ export class SplitService {
       this.userMap.get(paidBy),
       splits
     );
+
+    //Keep track of total expenses
     this.expenses.push(expense);
+
+    // Remove reverse (negative) balances to avoid miscalculation
     this.removeNegatives();
 
+    // Create balance sheet
     for (const split of expense.getSplits()) {
       const paidTo = split.getUser().getEmail();
       const balances =
@@ -78,7 +83,11 @@ export class SplitService {
 
       this.balanceSheet.set(paidBy, balances);
     }
+
+    //Calculate total group spendings
     this.totalGroupSpendings = +(this.totalGroupSpendings + amount).toFixed(2);
+
+    //Simplify Expenses. (A owe B) & (B owe C) = A owe C
     this.simplifyExpenses();
 
     return new SuccessResponse("Expense Created Successfully.");
@@ -104,11 +113,14 @@ export class SplitService {
     if (isEmpty) {
       transactionArray.push("No Balances");
     }
+
+    //Calculate total share of a individual. Negative total share means person owes the money.
     if (totalShare < 0) {
       totalShare = Math.abs(totalShare);
     } else {
       totalShare = -totalShare;
     }
+
     return new SuccessResponse(
       `Balances for ${this.userMap.get(email)?.getName()} (${email})`,
       { trxs: transactionArray, totalShare }
@@ -163,12 +175,12 @@ export class SplitService {
   ): Split[] {
     const splits: Split[] = [];
     switch (expenseType) {
-      case "EQUAL":
+      case ExpenseType.EQUAL:
         for (let user of this.userMap.keys()) {
           splits.push(new EqualSplit(this.userMap.get(user)));
         }
         break;
-      case "UNEQUAL":
+      case ExpenseType.UNEQUAL:
         for (let user of splitInfo) {
           splits.push(
             new UnequalSplit(this.userMap.get(user.email), user.amount)
@@ -213,6 +225,7 @@ export class SplitService {
   }
 
   private simplifyExpenses(): void {
+    //Create transactions array containing trxs - [from, to, amount]
     const transactions = [];
     for (const [allBalancesUser, allBalances] of this.balanceSheet.entries()) {
       for (const [user, balance] of allBalances.entries()) {
@@ -222,6 +235,7 @@ export class SplitService {
       }
     }
 
+    //Calculate score (Net change) of an individual
     const score = {};
 
     for (const [from, to, amount] of transactions) {
@@ -235,9 +249,11 @@ export class SplitService {
       score[to] = +(score[to] + amount).toFixed(2);
     }
 
+    // Seperate out givers(negatives) and receivers(positives)
     const positives = Object.entries(score).filter((a) => (a[1] as number) > 0);
     const negatives = Object.entries(score).filter((a) => (a[1] as number) < 0);
 
+    //Minimize trxs between individuals and calculate simplified trxs
     let newPositives, newNegatives;
     let minTxnCount = Infinity;
     let simplifiedTransactions;
@@ -290,10 +306,13 @@ export class SplitService {
           ]);
         }
 
+        //recurse until all nodes are visited
         recursion(newPositives, newNegatives, updatedTransactions);
       }
     }
     recursion(positives, negatives);
+
+    //Reconstruct balance sheet with new simple trxs.
     this.reconstructBalanceSheet(simplifiedTransactions);
     return;
   }
@@ -315,7 +334,7 @@ export class SplitService {
         newMap.set(to, trxMap);
       }
 
-      // Add negative balances - From -> To
+      // Add negative balances - From -> To (Required to calculate individual balance)
       if (newMap.has(from)) {
         const trxMap = newMap.get(from);
         trxMap.set(to, -amount);
