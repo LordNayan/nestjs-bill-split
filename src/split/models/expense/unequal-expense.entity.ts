@@ -19,7 +19,7 @@ export class UnequalExpense extends Expense {
     let sumSplitAmount = 0;
     for (const split of this.getSplits()) {
       const unequalSplit = split as UnequalSplit;
-      sumSplitAmount += unequalSplit.getAmount();
+      sumSplitAmount = +(sumSplitAmount + unequalSplit.getAmount()).toFixed(2);
     }
 
     if (totalAmount !== sumSplitAmount) {
