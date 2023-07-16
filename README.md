@@ -116,3 +116,12 @@ localhost:3000/docs
 - Add Expense (EQUALLY and UNEQUALLY)
 - Get balances for a particular user with users total share.
 - Get balances for all users with the total group spendings.
+
+## Running Tests
+To run tests, run the following command
+
+```bash
+  unit test:
+
+  RUN: pnpm test
+```
