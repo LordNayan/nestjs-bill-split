@@ -33,9 +33,7 @@ module.exports = {
   testEnvironment: "node",
   moduleNameMapper: {
     "^@src/(.*)$": resolve(__dirname, "../src/$1"),
-    "^@loan/(.*)$": resolve(__dirname, "../src/loan/$1"),
-    "^@user/(.*)$": resolve(__dirname, "../src/user/$1"),
+    "^@split/(.*)$": resolve(__dirname, "../src/split/$1"),
     "^@common/(.*)$": resolve(__dirname, "../src/common/$1"),
-    "^@database/(.*)$": resolve(__dirname, "../src/database/$1"),
   },
 };

@@ -20,19 +20,15 @@ A simple bill split app to manage expenses built on top of NestJS.
 
 ## Run Locally
 
-Clone the project
+1) Unzip the file
 
-```bash
-  Unzip the file.
-```
-
-Go to the project directory
+2) Go to the project directory
 
 ```bash
   cd nestjs-bill-split
 ```
 
-Install node and pnpm **(Optional - No need if you already have it)**
+3) Install node and pnpm **(Optional - No need if you already have it)**
 
 ```bash
 After you have installed node,
@@ -40,19 +36,19 @@ After you have installed node,
 RUN: sudo npm install -g pnpm
 ```
 
-Install dependencies
+4) Install dependencies
 
 ```bash
 RUN: pnpm install
 ```
 
-Start the server
+5) Start the server
 
 ```bash
 RUN: pnpm run start
 ```
 
-Open Swagger
+6) Open Swagger
 
 ```bash
 localhost:3000/docs

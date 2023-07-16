@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "@src/app.controller";
 import { SplitModule } from "@src/split/split.module";
@@ -19,6 +19,4 @@ import { EnvironmentVariables } from "@src/common/config/env.validation";
   ],
   controllers: [AppController],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {}
-}
+export class AppModule {}

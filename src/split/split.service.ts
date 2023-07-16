@@ -29,7 +29,8 @@ export class SplitService {
     this.balanceSheet = new Map<string, Map<string, number>>();
     this.totalGroupSpendings = 0;
 
-    //Test Users - Uncomment if you dont want to create users by yourself.
+  //Test Users - Uncomment if you want some default users.
+
     // this.addUser(new User("Nayan", "nayan@gmail.com"));
     // this.addUser(new User("Mayank", "mayank@gmail.com"));
     // this.addUser(new User("Hitesh", "hitesh@gmail.com"));
