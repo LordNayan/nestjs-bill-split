@@ -29,7 +29,7 @@ export class SplitService {
     this.balanceSheet = new Map<string, Map<string, number>>();
     this.totalGroupSpendings = 0;
 
-  //Test Users - Uncomment if you want some default users.
+    //Test Users - Uncomment if you want some default users.
 
     // this.addUser(new User("Nayan", "nayan@gmail.com"));
     // this.addUser(new User("Mayank", "mayank@gmail.com"));
@@ -97,7 +97,7 @@ export class SplitService {
     let isEmpty = true;
     const decodedEmail = decodeURIComponent(email);
     if (!this.isValidEmail(decodedEmail))
-      throw new BadRequestException(Errors.INVALID_EMAIL);
+      throw new BadRequestException(new ErrorResponse(Errors.INVALID_EMAIL));
     const userBalances = this.balanceSheet.get(decodedEmail);
     let transactionArray = [];
     let totalShare = 0;
@@ -219,7 +219,7 @@ export class SplitService {
       if (sumSplitAmount !== amount) invalidPayload = true;
     }
 
-    if (invalidPayload) throw new BadRequestException(Errors.INVALID_PAYLOAD);
+    if (invalidPayload) throw new BadRequestException(new ErrorResponse(Errors.INVALID_PAYLOAD));
 
     return;
   }
